@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>{{ movie.title_ru }}</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2">
+</head>
+<body>
+<p><a href="{% url 'movie_list' %}">Вернуться к списку фильмов</a></p>
+<h1>{{ movie.title_ru }}</h1>
+<div class="film-card">
+    {% if movie.poster %}
+    <img class="movie-poster detail" src="{{ movie.poster.url }}" alt="{{ movie.title_ru }}">
+    {% endif %}
+    <h2>{{ movie.title_ru }}{% if movie.year %} ({{ movie.year }}){% endif %}</h2>
+    <p><strong>Оригинальное название:</strong> {{ movie.title_orig }}</p>
+    <p><strong>Жанры:</strong> {% for genre in movie.genres.all %}{{ genre.name }}{% if not forloop.last %}, {% endif %}{% endfor %}</p>
+    <p><strong>Рейтинг фильма:</strong> {{ movie.movie_rating|default:"—" }}</p>
+    <p><strong>Описание:</strong> {{ movie.description|default:"Описание не добавлено." }}</p>
+</div>
+<h3>Комментарии</h3>
+{% for comment in comments %} 
+<div class="comment-card">
+    <p><strong>{{ comment.user.username }}</strong> ({{ comment.created_at }})</p>
+    <p>{{ comment.text }}</p>
+</div>
+{% empty %}
+<p>Нет комментариев.</p>
+{% endfor %}
+
+{% if user.is_authenticated %}
+<h3>Оставить комментарий</h3>
+<form method="post">
+  {% csrf_token %}
+<textarea name="comment" rows="4" cols="50"></textarea><br/>
+<button type="submit">Отправить</button>
+</form>
+{% else %}
+<p><a href="{% url 'login' %}">Войдите для добавления комментариев</a></p>
+{% endif %}
+
+</body>
+</html>

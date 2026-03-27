@@ -1,0 +1,52 @@
+<!DOCTYPE html>
+{% load static %}
+<html lang="ru">
+<head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Список фильмов</title>
+    <link rel="stylesheet" href="{% static 'style.css' %}?v=2">
+</head>
+<body>
+<header class="top-bar">
+    <h1>Каталог фильмов</h1>
+    <nav>
+        {% if user.is_authenticated %}
+        <span>Здравствуйте, {{ user.username }}!</span>
+        <form class="inline-form" action="{% url 'logout' %}" method="post">
+            {% csrf_token %}
+            <button type="submit" name="exit_button">Выйти</button>
+        </form>
+        {% else %}
+        <a href="{% url 'login' %}">Войти</a>
+        <a href="{% url 'register' %}">Зарегистрироваться</a>
+        {% endif %}
+        <a href="{% url 'feedback' %}">Обратная связь</a>
+    </nav>
+</header>
+
+<main>
+    <section class="movie-grid">
+        {% for movie in movies %}
+        <article class="movie-card">
+            <a href="{% url 'movie_detail' movie.pk %}" class="movie-image-link">
+                {% if movie.poster %}
+                <img class="movie-poster" src="{{ movie.poster.url }}" alt="{{ movie.title_ru }}">
+                {% else %}
+                <div class="movie-poster placeholder">Нет постера</div>
+                {% endif %}
+            </a>
+            <div class="movie-meta">
+                <h2><a href="{% url 'movie_detail' movie.pk %}">{{ movie.title_ru }}</a></h2>
+                <p class="muted">{{ movie.title_orig }}</p>
+                <p>Рейтинг: {{ movie.movie_rating|default:"—" }}</p>
+            </div>
+        </article>
+        {% empty %}
+        <p>Нет доступных фильмов.</p>
+        {% endfor %}
+    </section>
+</main>
+
+</body>
+</html>
